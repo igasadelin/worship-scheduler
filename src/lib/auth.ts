@@ -16,6 +16,8 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/login",
   },
+  secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
+  debug: true,
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -24,19 +26,32 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Parolă", type: "password" },
       },
       async authorize(credentials) {
+        console.log("LOGIN ATTEMPT START");
+
         const parsed = loginSchema.safeParse(credentials);
-        if (!parsed.success) return null;
+
+        if (!parsed.success) {
+          console.log("LOGIN PARSE FAILED");
+          return null;
+        }
 
         const { email, password } = parsed.data;
+        console.log("LOGIN EMAIL:", email);
 
         const user = await prisma.user.findUnique({
           where: { email },
         });
 
+        console.log("USER FOUND:", !!user);
+
         if (!user) return null;
 
         const isValid = await verifyPassword(password, user.password);
+        console.log("PASSWORD VALID:", isValid);
+
         if (!isValid) return null;
+
+        console.log("LOGIN SUCCESS");
 
         return {
           id: user.id,
