@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Navbar from "@/components/navbar";
 import Link from "next/link";
+import ConfirmSubmitButton from "@/components/confirm-submit-button";
 
 export default async function EventsPage() {
   const session = await getServerSession(authOptions);

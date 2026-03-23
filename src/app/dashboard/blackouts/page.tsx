@@ -24,12 +24,12 @@ export default async function BlackoutsPage() {
   return (
     <>
       <Navbar role={session.user.role} />
+
       <main className="page-container">
         <div style={{ marginBottom: 28 }}>
           <h1 className="hero-title">Blackout dates</h1>
           <p className="hero-subtitle" style={{ marginTop: 12, maxWidth: 760 }}>
-            Marchează zilele sau serviciile la care nu poți participa, ca
-            adminul să știe pe cine poate invita.
+            Marchează zilele sau serviciile la care nu poți participa.
           </p>
         </div>
 
@@ -99,11 +99,8 @@ export default async function BlackoutsPage() {
                         name="blackoutId"
                         value={blackout.id}
                       />
-                      <button
-                        type="submit"
-                        className="inline-flex items-center rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm font-medium text-red-400 transition hover:bg-red-500/20"
-                      >
-                        Delete
+                      <button type="submit" className="btn-secondary">
+                        Delete blackout
                       </button>
                     </form>
                   </div>

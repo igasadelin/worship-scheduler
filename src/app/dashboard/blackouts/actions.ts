@@ -19,9 +19,6 @@ export async function createBlackout(formData: FormData) {
     | "ALL_DAY";
   const note = String(formData.get("note") || "").trim();
 
-  console.log("BLACKOUT DATE:", date);
-  console.log("BLACKOUT SERVICE TYPE:", serviceType);
-
   if (!date || !serviceType) {
     throw new Error("Date și service type sunt obligatorii.");
   }
@@ -46,6 +43,10 @@ export async function deleteBlackout(formData: FormData) {
   }
 
   const blackoutId = String(formData.get("blackoutId") || "").trim();
+
+  if (!blackoutId) {
+    throw new Error("Missing blackoutId");
+  }
 
   const blackout = await prisma.blackout.findUnique({
     where: { id: blackoutId },
