@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String     @id @default(cuid())
+  name      String
+  email     String     @unique
+  password  String
+  role      UserRole   @default(MEMBER)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  blackouts Blackout[]
+
+  requests EventRequest[]
+}
+
+model Event {
+  id          String      @id @default(cuid())
+  title       String
+  date        DateTime
+  serviceType ServiceType
+  notes       String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  requests EventRequest[]
+}
+
+model EventRequest {
+  id           String        @id @default(cuid())
+  userId       String
+  eventId      String
+  ministryRole MinistryRole
+  status       RequestStatus @default(PENDING)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId, ministryRole])
+}
+
+enum UserRole {
+  ADMIN
+  MEMBER
+}
+
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+enum ServiceType {
+  MORNING
+  EVENING
+}
+
+enum MinistryRole {
+  SOLIST
+  PIAN
+  CHITARA
+  MEDIA
+  SUNET
+}
+
+model Blackout {
+  id          String       @id @default(cuid())
+  userId      String
+  date        DateTime
+  serviceType BlackoutType
+  note        String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum BlackoutType {
+  MORNING
+  EVENING
+  ALL_DAY
+}
