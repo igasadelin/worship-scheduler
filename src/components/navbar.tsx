@@ -6,7 +6,11 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import SignOutButton from "./sign-out-button";
 
-export default function Navbar() {
+type NavbarProps = {
+  role?: "ADMIN" | "MEMBER";
+};
+
+export default function Navbar({ role = "MEMBER" }: NavbarProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -20,6 +24,23 @@ export default function Navbar() {
   function linkClass(active: boolean) {
     return `btn-secondary ${active ? "bg-white/10 border-white/20" : ""}`;
   }
+
+  const memberLinks = [
+    { href: "/dashboard", label: "Dashboard" },
+    { href: "/events", label: "Events" },
+    { href: "/dashboard/blackouts", label: "Blackouts" },
+  ];
+
+  const adminLinks = [
+    { href: "/dashboard", label: "Dashboard" },
+    { href: "/events", label: "Events" },
+    { href: "/dashboard/blackouts", label: "Blackouts" },
+    { href: "/admin", label: "Admin" },
+    { href: "/admin/users", label: "Users" },
+    { href: "/admin/events", label: "Manage Events" },
+  ];
+
+  const links = role === "ADMIN" ? adminLinks : memberLinks;
 
   return (
     <div className="page-container" style={{ paddingBottom: 0 }}>
@@ -42,34 +63,15 @@ export default function Navbar() {
         </div>
 
         <div className="desktop-nav">
-          <Link href="/dashboard" className={linkClass(isActive("/dashboard"))}>
-            Dashboard
-          </Link>
-
-          <Link href="/admin" className={linkClass(isActive("/admin"))}>
-            Admin
-          </Link>
-
-          <Link
-            href="/admin/events"
-            className={linkClass(isActive("/admin/events"))}
-          >
-            Events
-          </Link>
-
-          <Link
-            href="/admin/users"
-            className={linkClass(isActive("/admin/users"))}
-          >
-            Users
-          </Link>
-
-          <Link
-            href="/dashboard/blackouts"
-            className={linkClass(isActive("/dashboard/blackouts"))}
-          >
-            Blackouts
-          </Link>
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={linkClass(isActive(link.href))}
+            >
+              {link.label}
+            </Link>
+          ))}
 
           <SignOutButton />
         </div>
@@ -85,45 +87,16 @@ export default function Navbar() {
 
       {open && (
         <div className="mobile-nav glass-card">
-          <Link
-            href="/dashboard"
-            className={linkClass(isActive("/dashboard"))}
-            onClick={() => setOpen(false)}
-          >
-            Dashboard
-          </Link>
-
-          <Link
-            href="/admin"
-            className={linkClass(isActive("/admin"))}
-            onClick={() => setOpen(false)}
-          >
-            Admin
-          </Link>
-
-          <Link
-            href="/admin/events"
-            className={linkClass(isActive("/admin/events"))}
-            onClick={() => setOpen(false)}
-          >
-            Events
-          </Link>
-
-          <Link
-            href="/admin/users"
-            className={linkClass(isActive("/admin/users"))}
-            onClick={() => setOpen(false)}
-          >
-            Users
-          </Link>
-
-          <Link
-            href="/dashboard/blackouts"
-            className={linkClass(isActive("/dashboard/blackouts"))}
-            onClick={() => setOpen(false)}
-          >
-            Blackouts
-          </Link>
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={linkClass(isActive(link.href))}
+              onClick={() => setOpen(false)}
+            >
+              {link.label}
+            </Link>
+          ))}
 
           <SignOutButton />
         </div>

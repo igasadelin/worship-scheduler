@@ -98,7 +98,7 @@ export default async function EventDetailsPage({
 
   return (
     <>
-      <Navbar />
+      <Navbar role="ADMIN" />
 
       <main className="page-container">
         <div className="mx-auto max-w-6xl">

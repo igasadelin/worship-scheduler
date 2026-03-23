@@ -23,7 +23,7 @@ export default async function BlackoutsPage() {
 
   return (
     <>
-      <Navbar />
+      <Navbar role={session.user.role} />
       <main className="page-container">
         <div style={{ marginBottom: 28 }}>
           <h1 className="hero-title">Blackout dates</h1>

@@ -38,7 +38,7 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <Navbar />
+      <Navbar role={session.user.role} />
       <main className="page-container">
         <div>
           <div className="brand-subtitle">Salut, {session.user.name}</div>

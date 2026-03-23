@@ -37,39 +37,50 @@ export default async function UserEventPage({
   if (!event) return notFound();
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white p-6">
-      <Navbar />
-      <div className="mx-auto max-w-4xl">
-        <h1 className="text-3xl font-bold mb-3">{event.title}</h1>
+    <>
+      <Navbar role={session.user.role} />
 
-        <p className="text-zinc-400 mb-2">
-          {new Date(event.date).toLocaleString("ro-RO")} • {event.serviceType}
-        </p>
+      <main className="page-container">
+        <div className="glass-card" style={{ padding: 24 }}>
+          <h1
+            className="hero-title"
+            style={{ fontSize: "clamp(2rem, 4vw, 2.8rem)" }}
+          >
+            {event.title}
+          </h1>
 
-        {event.notes && <p className="text-zinc-300 mb-8">{event.notes}</p>}
+          <p className="hero-subtitle" style={{ marginTop: 12 }}>
+            {new Date(event.date).toLocaleString("ro-RO")} • {event.serviceType}
+          </p>
 
-        <section className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
-          <h2 className="text-xl font-semibold mb-4">Confirmed lineup</h2>
+          {event.notes ? (
+            <p className="mt-4 text-zinc-300">{event.notes}</p>
+          ) : null}
 
-          <div className="space-y-3">
-            {event.requests.map((request) => (
-              <div
-                key={request.id}
-                className="rounded-xl border border-green-700/40 bg-zinc-950 p-4"
-              >
-                <p className="font-semibold">
-                  {request.ministryRole}: {request.user.name}
-                </p>
-                <p className="text-sm text-zinc-400">{request.user.email}</p>
-              </div>
-            ))}
+          <div style={{ marginTop: 28 }}>
+            <h2 className="section-title">Confirmed lineup</h2>
 
-            {event.requests.length === 0 && (
-              <p className="text-zinc-400">Nu există membri confirmați încă.</p>
-            )}
+            <div className="card-list">
+              {event.requests.map((request) => (
+                <div key={request.id} className="item-card">
+                  <div className="item-title">
+                    {request.ministryRole}: {request.user.name}
+                  </div>
+                  <div className="item-meta">{request.user.email}</div>
+                </div>
+              ))}
+
+              {event.requests.length === 0 ? (
+                <div className="item-card">
+                  <div className="item-meta">
+                    Nu există membri confirmați încă.
+                  </div>
+                </div>
+              ) : null}
+            </div>
           </div>
-        </section>
-      </div>
-    </main>
+        </div>
+      </main>
+    </>
   );
 }
