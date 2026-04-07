@@ -31,55 +31,6 @@ export default function LoginPage() {
   return (
     <main className="auth-wrapper">
       <div className="auth-card">
-        <section className="auth-left">
-          <div className="logo-panel">
-            <div className="brand-wrap">
-              <div className="brand-mark">
-                <Image
-                  src="/logo.png"
-                  alt="Logo Biserica Penticostală Aldești"
-                  width={48}
-                  height={48}
-                  style={{ objectFit: "contain" }}
-                />
-              </div>
-
-              <div>
-                <div className="brand-title">Biserica Penticostală Aldești</div>
-                <div className="brand-subtitle">
-                  Worship Team Scheduling Platform
-                </div>
-              </div>
-            </div>
-
-            <div style={{ marginTop: 36 }}>
-              <h1 className="hero-title">
-                Organizare elegantă pentru echipa de închinare.
-              </h1>
-
-              <p
-                className="hero-subtitle"
-                style={{ marginTop: 18, maxWidth: 560 }}
-              >
-                Gestionează rapid invitațiile, confirmările și lineup-ul final
-                pentru fiecare serviciu, într-o interfață premium, creată
-                special pentru biserica ta.
-              </p>
-            </div>
-
-            <div className="logo-frame">
-              <Image
-                src="/logo.png"
-                alt="Logo Aldești"
-                width={360}
-                height={360}
-                style={{ width: "100%", height: "100%", objectFit: "contain" }}
-                priority
-              />
-            </div>
-          </div>
-        </section>
-
         <section className="auth-right">
           <div className="form-wrap">
             <div className="glass-card" style={{ padding: 28 }}>

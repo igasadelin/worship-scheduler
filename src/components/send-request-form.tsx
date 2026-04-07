@@ -80,11 +80,6 @@ export default function SendRequestForm({
         </select>
       </div>
 
-      <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-zinc-300">
-        <span style={{ marginRight: 14 }}>🟢 Available</span>
-        <span>🔴 Blackout</span>
-      </div>
-
       <button
         type="submit"
         className="w-full rounded-xl bg-white py-3 font-semibold text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
