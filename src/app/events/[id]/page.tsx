@@ -98,10 +98,6 @@ export default async function UserEventPage({
                   <div className="mt-3 text-lg font-semibold text-white">
                     {request.user.name}
                   </div>
-
-                  <div className="mt-1 text-sm text-zinc-400">
-                    {request.user.email}
-                  </div>
                 </div>
               ))}
 

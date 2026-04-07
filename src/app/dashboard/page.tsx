@@ -138,10 +138,6 @@ export default async function DashboardPage() {
       <Navbar role={session.user.role} />
 
       <main className="page-container">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-        </div>
-
         <div className="flex flex-wrap gap-3">
           <div className="rounded-xl bg-white/5 px-4 py-2 text-sm">
             Pending: {pending.length}

@@ -26,13 +26,6 @@ export default async function BlackoutsPage() {
       <Navbar role={session.user.role} />
 
       <main className="page-container">
-        <div style={{ marginBottom: 28 }}>
-          <h1 className="hero-title">Blackout dates</h1>
-          <p className="hero-subtitle" style={{ marginTop: 12, maxWidth: 760 }}>
-            Marchează zilele sau serviciile la care nu poți participa.
-          </p>
-        </div>
-
         <div className="grid-2">
           <section className="glass-card" style={{ padding: 24 }}>
             <h2 className="section-title">Add blackout</h2>
