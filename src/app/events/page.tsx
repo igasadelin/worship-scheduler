@@ -55,13 +55,6 @@ export default async function EventsPage() {
       <Navbar role={session.user.role} />
 
       <main className="page-container">
-        <div style={{ marginBottom: 20 }}>
-          <h1 className="hero-title">All events</h1>
-          <p className="hero-subtitle" style={{ marginTop: 8, maxWidth: 760 }}>
-            Vezi toate programele și lineup-ul confirmat pentru fiecare
-            eveniment.
-          </p>
-        </div>
 
         <div className="flex flex-col gap-4">
           {events.map((event) => (
