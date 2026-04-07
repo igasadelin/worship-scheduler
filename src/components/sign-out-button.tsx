@@ -5,19 +5,14 @@ import { signOut } from "next-auth/react";
 import ConfirmSignOutModal from "./confirm-sign-out-modal";
 
 export default function SignOutButton() {
-  const [open, setOpen] = useState(false);
-
   return (
-    <>
-      <button onClick={() => setOpen(true)} className="btn-secondary">
+    <form action="/api/auth/signout" method="post">
+      <button
+        type="submit"
+        className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+      >
         Sign out
       </button>
-
-      <ConfirmSignOutModal
-        open={open}
-        onCancel={() => setOpen(false)}
-        onConfirm={() => signOut({ callbackUrl: "/login" })}
-      />
-    </>
+    </form>
   );
 }
