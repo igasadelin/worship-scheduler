@@ -44,7 +44,7 @@ export default async function EventsPage() {
 
   function DepartmentBadge({ label }: { label: string }) {
     return (
-      <span className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-medium text-white/80">
+      <span className="rounded-full bg-white/10 px-2 py-1 text-[10px] font-medium text-white/80">
         {label}
       </span>
     );
@@ -55,25 +55,33 @@ export default async function EventsPage() {
       <Navbar role={session.user.role} />
 
       <main className="page-container">
-        <div className="flex flex-col gap-5">
+        <div style={{ marginBottom: 20 }}>
+          <h1 className="hero-title">All events</h1>
+          <p className="hero-subtitle" style={{ marginTop: 8, maxWidth: 760 }}>
+            Vezi toate programele și lineup-ul confirmat pentru fiecare
+            eveniment.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-4">
           {events.map((event) => (
             <div
               key={event.id}
-              className="rounded-[24px] border border-white/10 bg-white/[0.04] p-4 shadow-[0_12px_40px_rgba(0,0,0,0.18)] backdrop-blur-md sm:rounded-[28px] sm:p-5"
+              className="rounded-[20px] border border-white/10 bg-white/[0.04] p-3.5 shadow-[0_12px_32px_rgba(0,0,0,0.16)] backdrop-blur-md sm:rounded-[24px] sm:p-4"
             >
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3">
                 <div>
-                  <h2 className="text-[clamp(1.35rem,4vw,2rem)] font-bold leading-tight text-white">
+                  <h2 className="text-[clamp(1.2rem,4vw,1.7rem)] font-bold leading-tight text-white">
                     {event.title}
                   </h2>
 
-                  <p className="mt-2.5 text-sm text-zinc-400 sm:text-base">
+                  <p className="mt-2 text-sm text-zinc-400">
                     {new Date(event.date).toLocaleString("ro-RO")} •{" "}
                     {event.serviceType}
                   </p>
 
                   {event.notes ? (
-                    <p className="mt-3 text-sm leading-6 text-zinc-300 sm:text-base">
+                    <p className="mt-2.5 text-sm leading-6 text-zinc-300">
                       {event.notes}
                     </p>
                   ) : null}
@@ -81,34 +89,34 @@ export default async function EventsPage() {
 
                 <Link
                   href={`/events/${event.id}`}
-                  className="rounded-2xl border border-white/10 bg-white/[0.05] px-5 py-2.5 text-center text-[15px] font-semibold text-white transition hover:bg-white/[0.10]"
+                  className="rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-white/[0.10]"
                 >
                   View details
                 </Link>
 
                 <div className="mt-1">
-                  <h3 className="mb-3 text-lg font-semibold text-white sm:text-xl">
+                  <h3 className="mb-3 text-lg font-semibold text-white">
                     Confirmed lineup
                   </h3>
 
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-2.5">
                     {event.requests.map((request) => (
                       <div
                         key={request.id}
-                        className="rounded-[20px] border border-white/8 bg-black/25 p-3.5 sm:rounded-[24px] sm:p-4"
+                        className="rounded-[16px] border border-white/8 bg-black/25 p-3"
                       >
                         <div className="flex flex-wrap items-center gap-2">
                           <DepartmentBadge label={getRequestLabel(request)} />
                         </div>
 
-                        <div className="mt-2.5 text-lg font-semibold text-white">
+                        <div className="mt-2 text-base font-semibold text-white">
                           {request.user.name}
                         </div>
                       </div>
                     ))}
 
                     {event.requests.length === 0 ? (
-                      <div className="rounded-[20px] border border-white/8 bg-black/20 p-3.5 sm:rounded-[24px] sm:p-4">
+                      <div className="rounded-[16px] border border-white/8 bg-black/20 p-3">
                         <div className="text-sm text-zinc-400">
                           Nu există membri confirmați încă.
                         </div>
@@ -121,7 +129,7 @@ export default async function EventsPage() {
           ))}
 
           {events.length === 0 ? (
-            <div className="rounded-[24px] border border-white/10 bg-white/[0.04] p-4 text-zinc-400">
+            <div className="rounded-[20px] border border-white/10 bg-white/[0.04] p-4 text-zinc-400">
               Nu există evenimente.
             </div>
           ) : null}
