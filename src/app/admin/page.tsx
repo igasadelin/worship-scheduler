@@ -17,16 +17,22 @@ export default async function AdminPage() {
           </p>
         </div>
 
-        <div className="admin-links">
+        <div
+          style={{
+            display: "grid",
+            gap: 16,
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+          }}
+        >
           <Link href="/admin/users" className="btn-primary">
             Manage users
           </Link>
 
-          <Link href="/admin/events" className="btn-secondary">
+          <Link href="/admin/events" className="btn-primary">
             Manage events
           </Link>
 
-          <Link href="/admin/departments" className="btn-secondary">
+          <Link href="/admin/departments" className="btn-primary">
             Manage departments
           </Link>
         </div>

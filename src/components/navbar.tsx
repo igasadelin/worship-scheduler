@@ -23,7 +23,12 @@ export default function Navbar({ role = "MEMBER" }: NavbarProps) {
   }
 
   function linkClass(active: boolean) {
-    return `btn-secondary ${active ? "bg-white/10 border-white/20" : ""}`;
+    return [
+      "rounded-2xl border px-4 py-2 text-sm font-medium transition",
+      active
+        ? "border-white/20 bg-white/10 text-white"
+        : "border-white/10 bg-white/5 text-white hover:bg-white/10",
+    ].join(" ");
   }
 
   const memberLinks = [
@@ -37,23 +42,48 @@ export default function Navbar({ role = "MEMBER" }: NavbarProps) {
     { href: "/events", label: "Events" },
     { href: "/dashboard/blackouts", label: "Blackouts" },
     { href: "/admin", label: "Admin" },
-    { href: "/admin/users", label: "Users" },
-    { href: "/admin/events", label: "Manage Events" },
-    { href: "/admin/departments", label: "Departments" },
   ];
 
   const links = role === "ADMIN" ? adminLinks : memberLinks;
 
   return (
     <div className="page-container" style={{ paddingBottom: 0 }}>
-      <div className="topbar mobile-topbar">
-        <div className="brand-wrap">
-          <div className="brand-mark">
+      <div
+        className="topbar"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 16,
+          flexWrap: "wrap",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            minWidth: 0,
+          }}
+        >
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 16,
+              display: "grid",
+              placeItems: "center",
+              border: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(255,255,255,0.04)",
+              overflow: "hidden",
+              flexShrink: 0,
+            }}
+          >
             <Image
               src="/logo.png"
               alt="Logo"
-              width={30}
-              height={30}
+              width={28}
+              height={28}
               style={{ objectFit: "contain" }}
             />
           </div>
@@ -64,7 +94,16 @@ export default function Navbar({ role = "MEMBER" }: NavbarProps) {
           </div>
         </div>
 
-        <div className="desktop-nav">
+        <div
+          className="desktop-nav"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            flexWrap: "wrap",
+            justifyContent: "flex-end",
+          }}
+        >
           {links.map((link) => (
             <Link
               key={link.href}
