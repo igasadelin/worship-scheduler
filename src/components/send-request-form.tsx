@@ -32,17 +32,11 @@ export default function SendRequestForm({
   const [departmentId, setDepartmentId] = useState(departments[0]?.id ?? "");
 
   const filteredUsers = useMemo(() => {
-    if (!departmentId) return users;
+    if (!departmentId) return [];
 
-    const matching = users.filter((user) =>
+    return users.filter((user) =>
       user.departments.some((d) => d.id === departmentId),
     );
-
-    const nonMatching = users.filter(
-      (user) => !user.departments.some((d) => d.id === departmentId),
-    );
-
-    return [...matching, ...nonMatching];
   }, [users, departmentId]);
 
   return (
@@ -72,25 +66,29 @@ export default function SendRequestForm({
           name="userId"
           className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-white outline-none"
           required
+          disabled={filteredUsers.length === 0}
         >
-          {filteredUsers.map((user) => {
-            const matchesDepartment = user.departments.some(
-              (d) => d.id === departmentId,
-            );
-
-            return (
+          {filteredUsers.length > 0 ? (
+            filteredUsers.map((user) => (
               <option key={user.id} value={user.id}>
-                {user.name} {matchesDepartment ? "(MATCH)" : "(OTHER)"}{" "}
-                {user.blocked ? "• BLACKOUT" : "• AVAILABLE"}
+                {user.blocked ? "🔴" : "🟢"} {user.name}
               </option>
-            );
-          })}
+            ))
+          ) : (
+            <option value="">No users in this department</option>
+          )}
         </select>
+      </div>
+
+      <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-zinc-300">
+        <span style={{ marginRight: 14 }}>🟢 Available</span>
+        <span>🔴 Blackout</span>
       </div>
 
       <button
         type="submit"
-        className="w-full rounded-xl bg-white py-3 font-semibold text-black transition hover:opacity-90"
+        className="w-full rounded-xl bg-white py-3 font-semibold text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+        disabled={filteredUsers.length === 0}
       >
         Send request
       </button>
