@@ -50,8 +50,33 @@ export default async function UserEventPage({
   }
 
   function DepartmentBadge({ label }: { label: string }) {
+    const normalized = label.trim().toLowerCase();
+
+    let className = "bg-white/10 text-white/85 border border-white/10";
+
+    if (normalized === "solist") {
+      className = "bg-rose-500/15 text-rose-300 border border-rose-400/20";
+    } else if (normalized === "pian") {
+      className =
+        "bg-violet-500/15 text-violet-300 border border-violet-400/20";
+    } else if (normalized === "chitara") {
+      className = "bg-blue-500/15 text-blue-300 border border-blue-400/20";
+    } else if (normalized === "media") {
+      className = "bg-cyan-500/15 text-cyan-300 border border-cyan-400/20";
+    } else if (normalized === "sunet") {
+      className = "bg-amber-500/15 text-amber-300 border border-amber-400/20";
+    } else if (normalized === "coffee") {
+      className =
+        "bg-orange-500/15 text-orange-300 border border-orange-400/20";
+    } else if (normalized === "start") {
+      className =
+        "bg-emerald-500/15 text-emerald-300 border border-emerald-400/20";
+    }
+
     return (
-      <span className="rounded-full bg-white/10 px-2 py-1 text-[10px] font-medium text-white/80">
+      <span
+        className={`inline-flex rounded-full px-2 py-1 text-[10px] font-medium ${className}`}
+      >
         {label}
       </span>
     );

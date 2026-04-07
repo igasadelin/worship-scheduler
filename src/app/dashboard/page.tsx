@@ -36,9 +36,42 @@ export default async function DashboardPage() {
   const accepted = requests.filter((r) => r.status === "ACCEPTED");
   const declined = requests.filter((r) => r.status === "DECLINED");
 
-  function Badge({ label }: { label: string }) {
+  function getRequestLabel(request: (typeof requests)[number]) {
+    if (request.department?.name) {
+      return request.department.name;
+    }
+
+    return request.ministryRole || "Unknown";
+  }
+
+  function DepartmentBadge({ label }: { label: string }) {
+    const normalized = label.trim().toLowerCase();
+
+    let className = "bg-white/10 text-white/85 border border-white/10";
+
+    if (normalized === "solist") {
+      className = "bg-rose-500/15 text-rose-300 border border-rose-400/20";
+    } else if (normalized === "pian") {
+      className =
+        "bg-violet-500/15 text-violet-300 border border-violet-400/20";
+    } else if (normalized === "chitara") {
+      className = "bg-blue-500/15 text-blue-300 border border-blue-400/20";
+    } else if (normalized === "media") {
+      className = "bg-cyan-500/15 text-cyan-300 border border-cyan-400/20";
+    } else if (normalized === "sunet") {
+      className = "bg-amber-500/15 text-amber-300 border border-amber-400/20";
+    } else if (normalized === "coffee") {
+      className =
+        "bg-orange-500/15 text-orange-300 border border-orange-400/20";
+    } else if (normalized === "start") {
+      className =
+        "bg-emerald-500/15 text-emerald-300 border border-emerald-400/20";
+    }
+
     return (
-      <span className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-medium text-white/80">
+      <span
+        className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-medium ${className}`}
+      >
         {label}
       </span>
     );
@@ -46,28 +79,20 @@ export default async function DashboardPage() {
 
   function StatusBadge({ status }: { status: string }) {
     const map = {
-      PENDING: "bg-yellow-500/15 text-yellow-400",
-      ACCEPTED: "bg-green-500/15 text-green-400",
-      DECLINED: "bg-red-500/15 text-red-400",
+      PENDING: "bg-yellow-500/15 text-yellow-400 border border-yellow-400/20",
+      ACCEPTED: "bg-green-500/15 text-green-400 border border-green-400/20",
+      DECLINED: "bg-red-500/15 text-red-400 border border-red-400/20",
     };
 
     return (
       <span
-        className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${
+        className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-medium ${
           map[status as keyof typeof map]
         }`}
       >
         {status}
       </span>
     );
-  }
-
-  function getRequestLabel(request: (typeof requests)[number]) {
-    if (request.department?.name) {
-      return request.department.name;
-    }
-
-    return request.ministryRole || "Unknown";
   }
 
   function RequestCard({ request }: { request: (typeof requests)[number] }) {
@@ -84,7 +109,7 @@ export default async function DashboardPage() {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <Badge label={getRequestLabel(request)} />
+            <DepartmentBadge label={getRequestLabel(request)} />
             <StatusBadge status={request.status} />
           </div>
 

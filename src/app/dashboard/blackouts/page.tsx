@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Navbar from "@/components/navbar";
 import { createBlackout, deleteBlackout } from "./actions";
+import ConfirmSubmitButton from "@/components/confirm-submit-button";
 
 export default async function BlackoutsPage() {
   const session = await getServerSession(authOptions);
@@ -21,26 +22,55 @@ export default async function BlackoutsPage() {
     },
   });
 
+  function BlackoutTypeBadge({ type }: { type: string }) {
+    const map: Record<string, string> = {
+      ALL_DAY: "bg-red-500/15 text-red-300 border border-red-400/20",
+      MORNING: "bg-amber-500/15 text-amber-300 border border-amber-400/20",
+      EVENING: "bg-indigo-500/15 text-indigo-300 border border-indigo-400/20",
+    };
+
+    return (
+      <span
+        className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-medium ${
+          map[type] ?? "bg-white/10 text-white/80 border border-white/10"
+        }`}
+      >
+        {type}
+      </span>
+    );
+  }
+
   return (
     <>
       <Navbar role={session.user.role} />
 
       <main className="page-container">
-        <div className="grid-2">
-          <section className="glass-card" style={{ padding: 24 }}>
-            <h2 className="section-title">Add blackout</h2>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <section className="rounded-[22px] border border-white/10 bg-white/[0.04] p-4 shadow-[0_12px_32px_rgba(0,0,0,0.16)] backdrop-blur-md">
+            <h2 className="mb-4 text-lg font-semibold text-white">
+              Add blackout
+            </h2>
 
-            <form action={createBlackout} style={{ display: "grid", gap: 16 }}>
+            <form action={createBlackout} className="space-y-4">
               <div>
-                <label className="soft-label">Date</label>
-                <input name="date" type="date" className="input-ui" required />
+                <label className="mb-1.5 block text-sm text-zinc-300">
+                  Date
+                </label>
+                <input
+                  name="date"
+                  type="date"
+                  required
+                  className="w-full rounded-[18px] border border-white/10 bg-black/35 px-4 py-3 text-white outline-none [color-scheme:dark]"
+                />
               </div>
 
               <div>
-                <label className="soft-label">Service type</label>
+                <label className="mb-1.5 block text-sm text-zinc-300">
+                  Service type
+                </label>
                 <select
                   name="serviceType"
-                  className="input-ui"
+                  className="w-full rounded-[18px] border border-white/10 bg-black/35 px-4 py-3 text-white outline-none"
                   defaultValue="ALL_DAY"
                 >
                   <option value="ALL_DAY">ALL_DAY</option>
@@ -50,59 +80,72 @@ export default async function BlackoutsPage() {
               </div>
 
               <div>
-                <label className="soft-label">Note</label>
+                <label className="mb-1.5 block text-sm text-zinc-300">
+                  Note
+                </label>
                 <textarea
                   name="note"
                   rows={4}
-                  className="input-ui"
                   placeholder="Opțional"
+                  className="w-full rounded-[18px] border border-white/10 bg-black/35 px-4 py-3 text-white outline-none"
                 />
               </div>
 
-              <button type="submit" className="btn-primary">
+              <button
+                type="submit"
+                className="w-full rounded-[18px] bg-gradient-to-r from-red-500 to-red-400 px-4 py-3 text-base font-semibold text-white shadow-[0_10px_30px_rgba(239,68,68,0.28)] transition hover:brightness-110"
+              >
                 Add blackout
               </button>
             </form>
           </section>
 
-          <section className="glass-card" style={{ padding: 24 }}>
-            <h2 className="section-title">My blackouts</h2>
+          <section className="rounded-[22px] border border-white/10 bg-white/[0.04] p-4 shadow-[0_12px_32px_rgba(0,0,0,0.16)] backdrop-blur-md">
+            <h2 className="mb-4 text-lg font-semibold text-white">
+              My blackouts
+            </h2>
 
-            <div className="card-list">
+            <div className="flex flex-col gap-3">
               {blackouts.map((blackout) => (
-                <div key={blackout.id} className="item-card">
-                  <div className="item-title">
-                    {new Date(blackout.date).toLocaleDateString("ro-RO")}
-                  </div>
-
-                  <div className="item-meta">
-                    Service: {blackout.serviceType}
+                <div
+                  key={blackout.id}
+                  className="rounded-[16px] border border-white/8 bg-black/25 p-3"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="text-base font-semibold text-white">
+                      {new Date(blackout.date).toLocaleDateString("ro-RO")}
+                    </div>
+                    <BlackoutTypeBadge type={blackout.serviceType} />
                   </div>
 
                   {blackout.note ? (
-                    <div className="item-meta" style={{ marginTop: 8 }}>
+                    <div className="mt-2 text-sm text-zinc-400">
                       {blackout.note}
                     </div>
                   ) : null}
 
-                  <div className="actions-row">
-                    <form action={deleteBlackout}>
-                      <input
-                        type="hidden"
-                        name="blackoutId"
-                        value={blackout.id}
-                      />
-                      <button type="submit" className="btn-secondary">
-                        Delete blackout
-                      </button>
-                    </form>
-                  </div>
+                  <form action={deleteBlackout} className="mt-3">
+                    <input
+                      type="hidden"
+                      name="blackoutId"
+                      value={blackout.id}
+                    />
+
+                    <ConfirmSubmitButton
+                      message="Ești sigur că vrei să ștergi acest blackout?"
+                      className="rounded-xl border border-red-500/25 bg-red-500/10 px-3 py-2 text-sm font-medium text-red-300 transition hover:bg-red-500/20"
+                    >
+                      Delete blackout
+                    </ConfirmSubmitButton>
+                  </form>
                 </div>
               ))}
 
               {blackouts.length === 0 ? (
-                <div className="item-card">
-                  <div className="item-meta">Nu ai blackout-uri setate.</div>
+                <div className="rounded-[16px] border border-white/8 bg-black/20 p-3">
+                  <div className="text-sm text-zinc-400">
+                    Nu ai blackout-uri setate.
+                  </div>
                 </div>
               ) : null}
             </div>
