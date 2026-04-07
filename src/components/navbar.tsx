@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 import SignOutButton from "./sign-out-button";
 
 type NavbarProps = {
@@ -12,7 +11,6 @@ type NavbarProps = {
 
 export default function Navbar({ role = "MEMBER" }: NavbarProps) {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
 
   function isActive(path: string) {
     if (path === "/admin") {
@@ -52,10 +50,9 @@ export default function Navbar({ role = "MEMBER" }: NavbarProps) {
         className="topbar"
         style={{
           display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
+          flexDirection: "column",
+          alignItems: "stretch",
           gap: 16,
-          flexWrap: "wrap",
         }}
       >
         <div
@@ -95,13 +92,10 @@ export default function Navbar({ role = "MEMBER" }: NavbarProps) {
         </div>
 
         <div
-          className="desktop-nav"
           style={{
             display: "flex",
-            alignItems: "center",
-            gap: 10,
             flexWrap: "wrap",
-            justifyContent: "flex-end",
+            gap: 12,
           }}
         >
           {links.map((link) => (
@@ -116,32 +110,7 @@ export default function Navbar({ role = "MEMBER" }: NavbarProps) {
 
           <SignOutButton />
         </div>
-
-        <button
-          className="mobile-menu-button"
-          onClick={() => setOpen((prev) => !prev)}
-          aria-label="Open menu"
-        >
-          {open ? "✕" : "☰"}
-        </button>
       </div>
-
-      {open && (
-        <div className="mobile-nav glass-card">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={linkClass(isActive(link.href))}
-              onClick={() => setOpen(false)}
-            >
-              {link.label}
-            </Link>
-          ))}
-
-          <SignOutButton />
-        </div>
-      )}
     </div>
   );
 }
