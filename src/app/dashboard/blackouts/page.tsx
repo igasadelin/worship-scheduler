@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import Navbar from "@/components/navbar";
 import { createBlackout, deleteBlackout } from "./actions";
 import ConfirmSubmitButton from "@/components/confirm-submit-button";
+import { formatBlackoutType, getBlackoutBadgeClass } from "@/lib/format";
 
 export default async function BlackoutsPage() {
   const session = await getServerSession(authOptions);
@@ -23,19 +24,13 @@ export default async function BlackoutsPage() {
   });
 
   function BlackoutTypeBadge({ type }: { type: string }) {
-    const map: Record<string, string> = {
-      ALL_DAY: "bg-red-500/15 text-red-300 border border-red-400/20",
-      MORNING: "bg-amber-500/15 text-amber-300 border border-amber-400/20",
-      EVENING: "bg-indigo-500/15 text-indigo-300 border border-indigo-400/20",
-    };
-
     return (
       <span
-        className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-medium ${
-          map[type] ?? "bg-white/10 text-white/80 border border-white/10"
-        }`}
+        className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-medium ${getBlackoutBadgeClass(
+          type,
+        )}`}
       >
-        {type}
+        {formatBlackoutType(type)}
       </span>
     );
   }
@@ -45,6 +40,13 @@ export default async function BlackoutsPage() {
       <Navbar role={session.user.role} />
 
       <main className="page-container">
+        <div style={{ marginBottom: 20 }}>
+          <h1 className="hero-title">Blackouts</h1>
+          <p className="hero-subtitle" style={{ marginTop: 8, maxWidth: 760 }}>
+            Adaugă perioadele în care nu poți participa.
+          </p>
+        </div>
+
         <div className="grid gap-4 lg:grid-cols-2">
           <section className="rounded-[22px] border border-white/10 bg-white/[0.04] p-4 shadow-[0_12px_32px_rgba(0,0,0,0.16)] backdrop-blur-md">
             <h2 className="mb-4 text-lg font-semibold text-white">
@@ -73,9 +75,9 @@ export default async function BlackoutsPage() {
                   className="w-full rounded-[18px] border border-white/10 bg-black/35 px-4 py-3 text-white outline-none"
                   defaultValue="ALL_DAY"
                 >
-                  <option value="ALL_DAY">ALL_DAY</option>
-                  <option value="MORNING">MORNING</option>
-                  <option value="EVENING">EVENING</option>
+                  <option value="ALL_DAY">Toată ziua</option>
+                  <option value="MORNING">🌤️ Dimineața</option>
+                  <option value="EVENING">🌙 Seara</option>
                 </select>
               </div>
 
