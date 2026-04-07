@@ -42,6 +42,14 @@ export default async function EventsPage() {
     return request.ministryRole || "Unknown";
   }
 
+  function DepartmentBadge({ label }: { label: string }) {
+    return (
+      <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/80">
+        {label}
+      </span>
+    );
+  }
+
   return (
     <>
       <Navbar role={session.user.role} />
@@ -55,59 +63,78 @@ export default async function EventsPage() {
           </p>
         </div>
 
-        <div className="card-list">
+        <div className="flex flex-col gap-6">
           {events.map((event) => (
-            <div key={event.id} className="glass-card" style={{ padding: 24 }}>
-              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+            <div
+              key={event.id}
+              className="rounded-[28px] border border-white/10 bg-white/[0.04] p-5 shadow-[0_12px_40px_rgba(0,0,0,0.18)] backdrop-blur-md"
+            >
+              <div className="flex flex-col gap-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-white">
+                  <h2 className="text-[clamp(1.6rem,4vw,2.2rem)] font-bold leading-tight text-white">
                     {event.title}
                   </h2>
-                  <p className="mt-2 text-zinc-400">
+
+                  <p className="mt-3 text-sm text-zinc-400 sm:text-base">
                     {new Date(event.date).toLocaleString("ro-RO")} •{" "}
                     {event.serviceType}
                   </p>
 
                   {event.notes ? (
-                    <p className="mt-3 text-zinc-300">{event.notes}</p>
+                    <p className="mt-3 text-sm leading-6 text-zinc-300 sm:text-base">
+                      {event.notes}
+                    </p>
                   ) : null}
                 </div>
 
-                <Link href={`/events/${event.id}`} className="btn-secondary">
+                <Link
+                  href={`/events/${event.id}`}
+                  className="rounded-2xl border border-white/10 bg-white/[0.05] px-5 py-3 text-center text-base font-semibold text-white transition hover:bg-white/[0.10]"
+                >
                   View details
                 </Link>
-              </div>
 
-              <div style={{ marginTop: 20 }}>
-                <h3 className="mb-4 text-lg font-semibold text-white">
-                  Confirmed lineup
-                </h3>
+                <div className="mt-1">
+                  <h3 className="mb-4 text-xl font-semibold text-white">
+                    Confirmed lineup
+                  </h3>
 
-                <div className="card-list">
-                  {event.requests.map((request) => (
-                    <div key={request.id} className="item-card">
-                      <div className="item-title">
-                        {getRequestLabel(request)}: {request.user.name}
+                  <div className="flex flex-col gap-3">
+                    {event.requests.map((request) => (
+                      <div
+                        key={request.id}
+                        className="rounded-[24px] border border-white/8 bg-black/25 p-4"
+                      >
+                        <div className="flex flex-wrap items-center gap-2">
+                          <DepartmentBadge label={getRequestLabel(request)} />
+                        </div>
+
+                        <div className="mt-3 text-lg font-semibold text-white">
+                          {request.user.name}
+                        </div>
+
+                        <div className="mt-1 text-sm text-zinc-400">
+                          {request.user.email}
+                        </div>
                       </div>
-                      <div className="item-meta">{request.user.email}</div>
-                    </div>
-                  ))}
+                    ))}
 
-                  {event.requests.length === 0 ? (
-                    <div className="item-card">
-                      <div className="item-meta">
-                        Nu există membri confirmați încă.
+                    {event.requests.length === 0 ? (
+                      <div className="rounded-[24px] border border-white/8 bg-black/20 p-4">
+                        <div className="text-sm text-zinc-400">
+                          Nu există membri confirmați încă.
+                        </div>
                       </div>
-                    </div>
-                  ) : null}
+                    ) : null}
+                  </div>
                 </div>
               </div>
             </div>
           ))}
 
           {events.length === 0 ? (
-            <div className="glass-card" style={{ padding: 24 }}>
-              <p className="text-zinc-400">Nu există evenimente.</p>
+            <div className="rounded-[28px] border border-white/10 bg-white/[0.04] p-5 text-zinc-400">
+              Nu există evenimente.
             </div>
           ) : null}
         </div>

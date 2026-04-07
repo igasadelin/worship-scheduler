@@ -49,44 +49,65 @@ export default async function UserEventPage({
     return request.ministryRole || "Unknown";
   }
 
+  function DepartmentBadge({ label }: { label: string }) {
+    return (
+      <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/80">
+        {label}
+      </span>
+    );
+  }
+
   return (
     <>
       <Navbar role={session.user.role} />
 
       <main className="page-container">
-        <div className="glass-card" style={{ padding: 24 }}>
-          <h1
-            className="hero-title"
-            style={{ fontSize: "clamp(2rem, 4vw, 2.8rem)" }}
-          >
-            {currentEvent.title}
-          </h1>
+        <div className="rounded-[30px] border border-white/10 bg-white/[0.04] p-5 shadow-[0_12px_40px_rgba(0,0,0,0.18)] backdrop-blur-md">
+          <div>
+            <h1 className="text-[clamp(2rem,5vw,3rem)] font-bold leading-tight text-white">
+              {currentEvent.title}
+            </h1>
 
-          <p className="hero-subtitle" style={{ marginTop: 12 }}>
-            {new Date(currentEvent.date).toLocaleString("ro-RO")} •{" "}
-            {currentEvent.serviceType}
-          </p>
+            <p className="mt-3 text-sm text-zinc-400 sm:text-base">
+              {new Date(currentEvent.date).toLocaleString("ro-RO")} •{" "}
+              {currentEvent.serviceType}
+            </p>
 
-          {currentEvent.notes ? (
-            <p className="mt-4 text-zinc-300">{currentEvent.notes}</p>
-          ) : null}
+            {currentEvent.notes ? (
+              <p className="mt-4 text-sm leading-6 text-zinc-300 sm:text-base">
+                {currentEvent.notes}
+              </p>
+            ) : null}
+          </div>
 
           <div style={{ marginTop: 28 }}>
-            <h2 className="section-title">Confirmed lineup</h2>
+            <h2 className="mb-4 text-2xl font-semibold text-white">
+              Confirmed lineup
+            </h2>
 
-            <div className="card-list">
+            <div className="flex flex-col gap-4">
               {currentEvent.requests.map((request) => (
-                <div key={request.id} className="item-card">
-                  <div className="item-title">
-                    {getRequestLabel(request)}: {request.user.name}
+                <div
+                  key={request.id}
+                  className="rounded-[24px] border border-white/8 bg-black/25 p-4"
+                >
+                  <div className="flex flex-wrap items-center gap-2">
+                    <DepartmentBadge label={getRequestLabel(request)} />
                   </div>
-                  <div className="item-meta">{request.user.email}</div>
+
+                  <div className="mt-3 text-lg font-semibold text-white">
+                    {request.user.name}
+                  </div>
+
+                  <div className="mt-1 text-sm text-zinc-400">
+                    {request.user.email}
+                  </div>
                 </div>
               ))}
 
               {currentEvent.requests.length === 0 ? (
-                <div className="item-card">
-                  <div className="item-meta">
+                <div className="rounded-[24px] border border-white/8 bg-black/20 p-4">
+                  <div className="text-sm text-zinc-400">
                     Nu există membri confirmați încă.
                   </div>
                 </div>

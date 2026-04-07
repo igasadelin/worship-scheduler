@@ -140,9 +140,6 @@ export default async function DashboardPage() {
       <main className="page-container">
         <div className="mb-6">
           <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="mt-2 text-zinc-400">
-            Vezi invitațiile și programele tale.
-          </p>
         </div>
 
         <div className="flex flex-wrap gap-3">
