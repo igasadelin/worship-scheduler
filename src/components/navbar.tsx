@@ -18,6 +18,7 @@ export default function Navbar({ role = "MEMBER" }: NavbarProps) {
     if (path === "/admin") {
       return pathname === "/admin";
     }
+
     return pathname.startsWith(path);
   }
 
@@ -38,6 +39,7 @@ export default function Navbar({ role = "MEMBER" }: NavbarProps) {
     { href: "/admin", label: "Admin" },
     { href: "/admin/users", label: "Users" },
     { href: "/admin/events", label: "Manage Events" },
+    { href: "/admin/departments", label: "Departments" },
   ];
 
   const links = role === "ADMIN" ? adminLinks : memberLinks;

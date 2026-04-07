@@ -3,6 +3,8 @@ import { requireAdmin } from "@/lib/permissions";
 import { notFound } from "next/navigation";
 import { removeRequest, sendRequest } from "@/app/admin/events/[id]/actions";
 import Navbar from "@/components/navbar";
+import ConfirmSubmitButton from "@/components/confirm-submit-button";
+import SendRequestForm from "@/components/send-request-form";
 
 export default async function EventDetailsPage({
   params,
@@ -19,6 +21,7 @@ export default async function EventDetailsPage({
       requests: {
         include: {
           user: true,
+          department: true,
         },
         orderBy: {
           createdAt: "desc",
@@ -28,12 +31,25 @@ export default async function EventDetailsPage({
   });
 
   if (!event) {
-    return notFound();
+    notFound();
   }
+
+  const currentEvent = event;
+
+  const departments = await prisma.department.findMany({
+    orderBy: {
+      name: "asc",
+    },
+  });
 
   const users = await prisma.user.findMany({
     include: {
       blackouts: true,
+      userDepartments: {
+        include: {
+          department: true,
+        },
+      },
     },
     orderBy: {
       name: "asc",
@@ -51,32 +67,13 @@ export default async function EventDetailsPage({
     );
   }
 
-  const eventDate = event.date;
-  const eventServiceType = event.serviceType;
-
-  console.log("EVENT TITLE:", event.title);
-  console.log("EVENT DATE:", event.date);
-  console.log("EVENT SERVICE TYPE:", eventServiceType);
-
-  users.forEach((user) => {
-    console.log(
-      "USER:",
-      user.name,
-      user.blackouts.map((b) => ({
-        date: b.date,
-        serviceType: b.serviceType,
-      })),
-    );
-  });
+  const eventDate = currentEvent.date;
+  const eventServiceType = currentEvent.serviceType;
 
   function isUserBlockedForEvent(user: (typeof users)[number]) {
     return user.blackouts.some((blackout) => {
-      console.log("CHECKING USER:", user.name);
-      console.log("BLACKOUT TYPE:", blackout.serviceType);
-      console.log("EVENT TYPE:", eventServiceType);
-      console.log("SAME DAY:", isSameDay(blackout.date, eventDate));
-
       if (!isSameDay(blackout.date, eventDate)) return false;
+
       if (blackout.serviceType === "ALL_DAY") return true;
       if (blackout.serviceType === eventServiceType) return true;
 
@@ -84,17 +81,36 @@ export default async function EventDetailsPage({
     });
   }
 
-  const acceptedRequests = event.requests.filter(
+  const sendRequestUsers = users.map((user) => ({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    blocked: isUserBlockedForEvent(user),
+    departments: user.userDepartments.map((item) => ({
+      id: item.department.id,
+      name: item.department.name,
+    })),
+  }));
+
+  const acceptedRequests = currentEvent.requests.filter(
     (request) => request.status === "ACCEPTED",
   );
 
-  const pendingRequests = event.requests.filter(
+  const pendingRequests = currentEvent.requests.filter(
     (request) => request.status === "PENDING",
   );
 
-  const declinedRequests = event.requests.filter(
+  const declinedRequests = currentEvent.requests.filter(
     (request) => request.status === "DECLINED",
   );
+
+  function getRequestLabel(request: (typeof currentEvent.requests)[number]) {
+    if (request.department?.name) {
+      return request.department.name;
+    }
+
+    return request.ministryRole || "Unknown";
+  }
 
   return (
     <>
@@ -103,67 +119,28 @@ export default async function EventDetailsPage({
       <main className="page-container">
         <div className="mx-auto max-w-6xl">
           <div className="mb-3 flex items-start justify-between gap-4">
-            <h1 className="text-3xl font-bold">{event.title}</h1>
+            <h1 className="text-3xl font-bold">{currentEvent.title}</h1>
           </div>
 
           <p className="mb-2 text-zinc-400">
-            {new Date(event.date).toLocaleString("ro-RO")} • {event.serviceType}
+            {new Date(currentEvent.date).toLocaleString("ro-RO")} •{" "}
+            {currentEvent.serviceType}
           </p>
 
-          {event.notes && <p className="mb-8 text-zinc-300">{event.notes}</p>}
+          {currentEvent.notes && (
+            <p className="mb-8 text-zinc-300">{currentEvent.notes}</p>
+          )}
 
           <div className="grid gap-8 lg:grid-cols-2">
             <section className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
               <h2 className="mb-4 text-xl font-semibold">Send request</h2>
 
-              <form action={sendRequest} className="space-y-4">
-                <input type="hidden" name="eventId" value={event.id} />
-
-                <div>
-                  <label className="mb-1 block text-sm text-zinc-300">
-                    User
-                  </label>
-                  <select
-                    name="userId"
-                    className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-white outline-none"
-                    required
-                  >
-                    {users.map((user) => {
-                      const blocked = isUserBlockedForEvent(user);
-
-                      return (
-                        <option key={user.id} value={user.id}>
-                          {user.name} ({blocked ? "BLACKOUT" : "AVAILABLE"})
-                        </option>
-                      );
-                    })}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="mb-1 block text-sm text-zinc-300">
-                    Role
-                  </label>
-                  <select
-                    name="role"
-                    className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-white outline-none"
-                    required
-                  >
-                    <option value="SOLIST">SOLIST</option>
-                    <option value="PIAN">PIAN</option>
-                    <option value="CHITARA">CHITARA</option>
-                    <option value="MEDIA">MEDIA</option>
-                    <option value="SUNET">SUNET</option>
-                  </select>
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full rounded-xl bg-white py-3 font-semibold text-black transition hover:opacity-90"
-                >
-                  Send request
-                </button>
-              </form>
+              <SendRequestForm
+                eventId={currentEvent.id}
+                users={sendRequestUsers}
+                departments={departments}
+                action={sendRequest}
+              />
             </section>
 
             <section className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
@@ -176,7 +153,7 @@ export default async function EventDetailsPage({
                     className="rounded-xl border border-green-700/40 bg-zinc-950 p-4"
                   >
                     <p className="font-semibold">
-                      {request.ministryRole}: {request.user.name}
+                      {getRequestLabel(request)}: {request.user.name}
                     </p>
                     <p className="text-sm text-zinc-400">
                       {request.user.email}
@@ -191,13 +168,18 @@ export default async function EventDetailsPage({
                         name="requestId"
                         value={request.id}
                       />
-                      <input type="hidden" name="eventId" value={event.id} />
-                      <button
-                        type="submit"
+                      <input
+                        type="hidden"
+                        name="eventId"
+                        value={currentEvent.id}
+                      />
+
+                      <ConfirmSubmitButton
+                        message="Ești sigur că vrei să scoți această persoană din eveniment?"
                         className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm font-medium text-red-400 transition hover:bg-red-500/20"
                       >
                         Remove from event
-                      </button>
+                      </ConfirmSubmitButton>
                     </form>
                   </div>
                 ))}
@@ -220,7 +202,7 @@ export default async function EventDetailsPage({
                     className="rounded-xl border border-yellow-700/40 bg-zinc-950 p-4"
                   >
                     <p className="font-semibold">
-                      {request.user.name} - {request.ministryRole}
+                      {request.user.name} - {getRequestLabel(request)}
                     </p>
                     <p className="text-sm text-zinc-400">
                       {request.user.email}
@@ -235,13 +217,18 @@ export default async function EventDetailsPage({
                         name="requestId"
                         value={request.id}
                       />
-                      <input type="hidden" name="eventId" value={event.id} />
-                      <button
-                        type="submit"
+                      <input
+                        type="hidden"
+                        name="eventId"
+                        value={currentEvent.id}
+                      />
+
+                      <ConfirmSubmitButton
+                        message="Ești sigur că vrei să scoți această persoană din eveniment?"
                         className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm font-medium text-red-400 transition hover:bg-red-500/20"
                       >
                         Remove from event
-                      </button>
+                      </ConfirmSubmitButton>
                     </form>
                   </div>
                 ))}
@@ -262,7 +249,7 @@ export default async function EventDetailsPage({
                     className="rounded-xl border border-red-700/40 bg-zinc-950 p-4"
                   >
                     <p className="font-semibold">
-                      {request.user.name} - {request.ministryRole}
+                      {request.user.name} - {getRequestLabel(request)}
                     </p>
                     <p className="text-sm text-zinc-400">
                       {request.user.email}
@@ -277,13 +264,18 @@ export default async function EventDetailsPage({
                         name="requestId"
                         value={request.id}
                       />
-                      <input type="hidden" name="eventId" value={event.id} />
-                      <button
-                        type="submit"
+                      <input
+                        type="hidden"
+                        name="eventId"
+                        value={currentEvent.id}
+                      />
+
+                      <ConfirmSubmitButton
+                        message="Ești sigur că vrei să scoți această persoană din eveniment?"
                         className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm font-medium text-red-400 transition hover:bg-red-500/20"
                       >
                         Remove from event
-                      </button>
+                      </ConfirmSubmitButton>
                     </form>
                   </div>
                 ))}
@@ -299,13 +291,13 @@ export default async function EventDetailsPage({
             <h2 className="mb-4 text-xl font-semibold">All requests</h2>
 
             <div className="space-y-3">
-              {event.requests.map((request) => (
+              {currentEvent.requests.map((request) => (
                 <div
                   key={request.id}
                   className="rounded-xl border border-zinc-800 bg-zinc-950 p-4"
                 >
                   <p className="font-semibold">
-                    {request.user.name} - {request.ministryRole}
+                    {request.user.name} - {getRequestLabel(request)}
                   </p>
                   <p className="text-sm text-zinc-400">{request.user.email}</p>
                   <p className="mt-1 text-sm text-zinc-300">
@@ -314,7 +306,7 @@ export default async function EventDetailsPage({
                 </div>
               ))}
 
-              {event.requests.length === 0 && (
+              {currentEvent.requests.length === 0 && (
                 <p className="text-zinc-400">No requests yet.</p>
               )}
             </div>

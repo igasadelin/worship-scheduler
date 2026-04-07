@@ -50,13 +50,17 @@ export async function deleteUser(formData: FormData) {
     throw new Error("Lipsește userId.");
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
+  await prisma.userDepartment.deleteMany({
+    where: { userId },
   });
 
-  if (!user) {
-    throw new Error("Utilizatorul nu există.");
-  }
+  await prisma.blackout.deleteMany({
+    where: { userId },
+  });
+
+  await prisma.eventRequest.deleteMany({
+    where: { userId },
+  });
 
   await prisma.user.delete({
     where: { id: userId },

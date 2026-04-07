@@ -1,29 +1,36 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/permissions";
-import SignOutButton from "@/components/sign-out-button";
 import Navbar from "@/components/navbar";
 
 export default async function AdminPage() {
   await requireAdmin();
 
   return (
-    <main className="min-h-screen bg-zinc-950 p-6 text-white">
-      <Navbar />
-      <div className="mx-auto max-w-4xl">
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Admin</h1>
+    <>
+      <Navbar role="ADMIN" />
+
+      <main className="page-container">
+        <div style={{ marginBottom: 28 }}>
+          <h1 className="hero-title">Admin</h1>
+          <p className="hero-subtitle" style={{ marginTop: 12, maxWidth: 760 }}>
+            Gestionează utilizatorii, evenimentele și departamentele platformei.
+          </p>
         </div>
 
-        <div className="flex gap-4 rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
+        <div className="admin-links">
           <Link href="/admin/users" className="btn-primary">
             Manage users
           </Link>
 
-          <Link href="/admin/events" className="btn-primary">
+          <Link href="/admin/events" className="btn-secondary">
             Manage events
           </Link>
+
+          <Link href="/admin/departments" className="btn-secondary">
+            Manage departments
+          </Link>
         </div>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }

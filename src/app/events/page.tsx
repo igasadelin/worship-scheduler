@@ -4,7 +4,6 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Navbar from "@/components/navbar";
 import Link from "next/link";
-import ConfirmSubmitButton from "@/components/confirm-submit-button";
 
 export default async function EventsPage() {
   const session = await getServerSession(authOptions);
@@ -21,9 +20,10 @@ export default async function EventsPage() {
         },
         include: {
           user: true,
+          department: true,
         },
         orderBy: {
-          ministryRole: "asc",
+          createdAt: "asc",
         },
       },
     },
@@ -31,6 +31,16 @@ export default async function EventsPage() {
       date: "asc",
     },
   });
+
+  function getRequestLabel(
+    request: (typeof events)[number]["requests"][number],
+  ) {
+    if (request.department?.name) {
+      return request.department.name;
+    }
+
+    return request.ministryRole || "Unknown";
+  }
 
   return (
     <>
@@ -57,6 +67,7 @@ export default async function EventsPage() {
                     {new Date(event.date).toLocaleString("ro-RO")} •{" "}
                     {event.serviceType}
                   </p>
+
                   {event.notes ? (
                     <p className="mt-3 text-zinc-300">{event.notes}</p>
                   ) : null}
@@ -76,7 +87,7 @@ export default async function EventsPage() {
                   {event.requests.map((request) => (
                     <div key={request.id} className="item-card">
                       <div className="item-title">
-                        {request.ministryRole}: {request.user.name}
+                        {getRequestLabel(request)}: {request.user.name}
                       </div>
                       <div className="item-meta">{request.user.email}</div>
                     </div>

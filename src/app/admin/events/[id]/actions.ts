@@ -10,14 +10,9 @@ export async function sendRequest(formData: FormData) {
 
   const eventId = String(formData.get("eventId") || "").trim();
   const userId = String(formData.get("userId") || "").trim();
-  const role = String(formData.get("role") || "").trim() as
-    | "SOLIST"
-    | "PIAN"
-    | "CHITARA"
-    | "MEDIA"
-    | "SUNET";
+  const departmentId = String(formData.get("departmentId") || "").trim();
 
-  if (!eventId || !userId || !role) {
+  if (!eventId || !userId || !departmentId) {
     throw new Error("Missing fields");
   }
 
@@ -25,19 +20,21 @@ export async function sendRequest(formData: FormData) {
     where: {
       eventId,
       userId,
-      ministryRole: role,
+      departmentId,
     },
   });
 
   if (existingRequest) {
-    throw new Error("Request-ul există deja pentru userul și rolul acesta.");
+    throw new Error(
+      "Request-ul există deja pentru userul și departamentul acesta.",
+    );
   }
 
   await prisma.eventRequest.create({
     data: {
       eventId,
       userId,
-      ministryRole: role,
+      departmentId,
       status: "PENDING",
     },
   });
@@ -50,12 +47,16 @@ export async function sendRequest(formData: FormData) {
     where: { id: eventId },
   });
 
-  if (user && event) {
+  const department = await prisma.department.findUnique({
+    where: { id: departmentId },
+  });
+
+  if (user && event && department) {
     await sendInviteEmail({
       to: user.email,
       eventTitle: event.title,
       date: new Date(event.date).toLocaleString("ro-RO"),
-      role,
+      role: department.name,
     });
   }
 

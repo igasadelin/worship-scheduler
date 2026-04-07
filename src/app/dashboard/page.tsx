@@ -4,7 +4,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { updateRequestStatus } from "./actions";
-import SignOutButton from "@/components/sign-out-button";
 import Navbar from "@/components/navbar";
 
 function getStatusClass(status: string) {
@@ -26,6 +25,7 @@ export default async function DashboardPage() {
     },
     include: {
       event: true,
+      department: true,
     },
     orderBy: {
       createdAt: "desc",
@@ -36,18 +36,23 @@ export default async function DashboardPage() {
   const acceptedRequests = requests.filter((req) => req.status === "ACCEPTED");
   const declinedRequests = requests.filter((req) => req.status === "DECLINED");
 
+  function getRequestLabel(request: (typeof requests)[number]) {
+    if (request.department?.name) {
+      return request.department.name;
+    }
+
+    return request.ministryRole || "Unknown";
+  }
+
   return (
     <>
       <Navbar role={session.user.role} />
-      <main className="page-container">
-        <div>
-          <div className="brand-subtitle">Salut, {session.user.name}</div>
-        </div>
 
+      <main className="page-container">
         <div style={{ marginBottom: 28 }}>
-          <h1 className="hero-title">Worship. Media. Sound.</h1>
+          <h1 className="hero-title">Dashboard</h1>
           <p className="hero-subtitle" style={{ marginTop: 12, maxWidth: 780 }}>
-            Vezi cererile primite, confirmă participarea și accesează rapid
+            Vezi invitațiile primite, confirmă participarea și accesează rapid
             evenimentele la care ai fost programat.
           </p>
         </div>
@@ -64,7 +69,7 @@ export default async function DashboardPage() {
                     {new Date(req.event.date).toLocaleString("ro-RO")}
                   </div>
                   <div className="item-meta">
-                    Rol propus: {req.ministryRole}
+                    Rol propus: {getRequestLabel(req)}
                   </div>
 
                   <span className={getStatusClass(req.status)}>
@@ -106,7 +111,7 @@ export default async function DashboardPage() {
                     {new Date(req.event.date).toLocaleString("ro-RO")}
                   </div>
                   <div className="item-meta">
-                    Rol confirmat: {req.ministryRole}
+                    Rol confirmat: {getRequestLabel(req)}
                   </div>
 
                   <span className={getStatusClass(req.status)}>
@@ -143,7 +148,7 @@ export default async function DashboardPage() {
                 <div className="item-meta">
                   {new Date(req.event.date).toLocaleString("ro-RO")}
                 </div>
-                <div className="item-meta">Rol: {req.ministryRole}</div>
+                <div className="item-meta">Rol: {getRequestLabel(req)}</div>
 
                 <span className={getStatusClass(req.status)}>{req.status}</span>
               </div>

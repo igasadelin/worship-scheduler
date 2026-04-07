@@ -8,16 +8,39 @@ datasource db {
 }
 
 model User {
-  id        String     @id @default(cuid())
+  id        String   @id @default(cuid())
   name      String
-  email     String     @unique
+  email     String   @unique
   password  String
-  role      UserRole   @default(MEMBER)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  blackouts Blackout[]
+  role      UserRole @default(MEMBER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  requests EventRequest[]
+  requests        EventRequest[]
+  blackouts       Blackout[]
+  userDepartments UserDepartment[]
+}
+
+model Department {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userDepartments UserDepartment[]
+  requests        EventRequest[]
+}
+
+model UserDepartment {
+  id           String   @id @default(cuid())
+  userId       String
+  departmentId String
+  createdAt    DateTime @default(now())
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, departmentId])
 }
 
 model Event {
@@ -33,18 +56,38 @@ model Event {
 }
 
 model EventRequest {
-  id           String        @id @default(cuid())
-  userId       String
-  eventId      String
-  ministryRole MinistryRole
-  status       RequestStatus @default(PENDING)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id      String @id @default(cuid())
+  userId  String
+  eventId String
 
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  // requests vechi
+  ministryRole MinistryRole?
+
+  // requests noi
+  departmentId String?
+
+  status    RequestStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event      Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  department Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
 
   @@unique([userId, eventId, ministryRole])
+  @@unique([userId, eventId, departmentId])
+}
+
+model Blackout {
+  id          String       @id @default(cuid())
+  userId      String
+  date        DateTime
+  serviceType BlackoutType
+  note        String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum UserRole {
@@ -69,18 +112,6 @@ enum MinistryRole {
   CHITARA
   MEDIA
   SUNET
-}
-
-model Blackout {
-  id          String       @id @default(cuid())
-  userId      String
-  date        DateTime
-  serviceType BlackoutType
-  note        String?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum BlackoutType {

@@ -1,59 +1,58 @@
 import "dotenv/config";
+import bcrypt from "bcryptjs";
 import { prisma } from "../src/lib/prisma";
-import { hashPassword } from "../src/lib/passwords";
 
 async function main() {
-  const adminEmail = "admin@biserica.ro";
-  const userEmail = "user@biserica.ro";
+  const adminPassword = await bcrypt.hash("admin1234", 10);
+  const userPassword = await bcrypt.hash("user1234", 10);
 
-  const adminExists = await prisma.user.findUnique({
-    where: { email: adminEmail },
+  await prisma.user.upsert({
+    where: { email: "admin@biserica.ro" },
+    update: {},
+    create: {
+      name: "Admin User",
+      email: "admin@biserica.ro",
+      password: adminPassword,
+      role: "ADMIN",
+    },
   });
 
-  if (!adminExists) {
-    await prisma.user.create({
-      data: {
-        name: "Adelin Admin",
-        email: adminEmail,
-        password: await hashPassword("admin1234"),
-        role: "ADMIN",
-      },
-    });
-
-    console.log("Admin created:");
-    console.log("Email:", adminEmail);
-    console.log("Password:", "admin1234");
-  } else {
-    console.log("Admin already exists.");
-  }
-
-  const userExists = await prisma.user.findUnique({
-    where: { email: userEmail },
+  await prisma.user.upsert({
+    where: { email: "user@biserica.ro" },
+    update: {},
+    create: {
+      name: "Test User",
+      email: "user@biserica.ro",
+      password: userPassword,
+      role: "MEMBER",
+    },
   });
 
-  if (!userExists) {
-    await prisma.user.create({
-      data: {
-        name: "Test User",
-        email: userEmail,
-        password: await hashPassword("user1234"),
-        role: "MEMBER",
-      },
-    });
+  const baseDepartments = [
+    "Solist",
+    "Pian",
+    "Chitara",
+    "Media",
+    "Sunet",
+    "Coffee",
+    "Start",
+  ];
 
-    console.log("User created:");
-    console.log("Email:", userEmail);
-    console.log("Password:", "user1234");
-  } else {
-    console.log("User already exists.");
+  for (const name of baseDepartments) {
+    await prisma.department.upsert({
+      where: { name },
+      update: {},
+      create: { name },
+    });
   }
 }
 
 main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
+  .then(async () => {
     await prisma.$disconnect();
+  })
+  .catch(async (error) => {
+    console.error(error);
+    await prisma.$disconnect();
+    process.exit(1);
   });

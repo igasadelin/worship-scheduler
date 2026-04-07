@@ -13,9 +13,7 @@ export async function updateRequestStatus(formData: FormData) {
   }
 
   const requestId = String(formData.get("requestId"));
-  const status = String(formData.get("status")) as
-    | "ACCEPTED"
-    | "DECLINED";
+  const status = String(formData.get("status")) as "ACCEPTED" | "DECLINED";
 
   const request = await prisma.eventRequest.findUnique({
     where: { id: requestId },
@@ -35,4 +33,5 @@ export async function updateRequestStatus(formData: FormData) {
   });
 
   revalidatePath("/dashboard");
+  revalidatePath("/events");
 }

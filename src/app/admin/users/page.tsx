@@ -1,122 +1,138 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/permissions";
 import { createUser, deleteUser } from "./actions";
-import SignOutButton from "@/components/sign-out-button";
 import Navbar from "@/components/navbar";
+import ConfirmSubmitButton from "@/components/confirm-submit-button";
 
 export default async function AdminUsersPage() {
   await requireAdmin();
 
   const users = await prisma.user.findMany({
+    include: {
+      userDepartments: {
+        include: {
+          department: true,
+        },
+      },
+    },
     orderBy: {
       createdAt: "desc",
     },
   });
 
   return (
-    <main className="min-h-screen bg-zinc-950 p-6 text-white">
-      <Navbar />
-      <div className="mx-auto max-w-5xl">
-        <div className="mb-8 flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Admin - Users</h1>
+    <>
+      <Navbar role="ADMIN" />
+
+      <main className="page-container">
+        <div style={{ marginBottom: 28 }}>
+          <h1 className="hero-title">Manage users</h1>
+          <p className="hero-subtitle" style={{ marginTop: 12, maxWidth: 760 }}>
+            Creează, modifică și șterge utilizatorii platformei.
+          </p>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-2">
-          <section className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
-            <h2 className="mb-4 text-xl font-semibold">Create user</h2>
+        <div className="grid-2">
+          <section className="glass-card" style={{ padding: 24 }}>
+            <h2 className="section-title">Create user</h2>
 
-            <form action={createUser} className="space-y-4">
+            <form action={createUser} style={{ display: "grid", gap: 16 }}>
               <div>
-                <label className="mb-1 block text-sm text-zinc-300">Nume</label>
-                <input
-                  name="name"
-                  type="text"
-                  className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-white outline-none"
-                  required
-                />
+                <label className="soft-label">Name</label>
+                <input name="name" type="text" className="input-ui" required />
               </div>
 
               <div>
-                <label className="mb-1 block text-sm text-zinc-300">
-                  Email
-                </label>
+                <label className="soft-label">Email</label>
                 <input
                   name="email"
                   type="email"
-                  className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-white outline-none"
+                  className="input-ui"
                   required
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-sm text-zinc-300">
-                  Parolă
-                </label>
+                <label className="soft-label">Password</label>
                 <input
                   name="password"
                   type="password"
-                  className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-white outline-none"
+                  className="input-ui"
                   required
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-sm text-zinc-300">Rol</label>
-                <select
-                  name="role"
-                  className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-white outline-none"
-                  defaultValue="MEMBER"
-                >
+                <label className="soft-label">Role</label>
+                <select name="role" className="input-ui" defaultValue="MEMBER">
                   <option value="MEMBER">MEMBER</option>
                   <option value="ADMIN">ADMIN</option>
                 </select>
               </div>
 
-              <button
-                type="submit"
-                className="w-full rounded-xl bg-white py-3 font-semibold text-black transition hover:opacity-90"
-              >
+              <button type="submit" className="btn-primary">
                 Create user
               </button>
             </form>
           </section>
 
-          <section className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
-            <h2 className="mb-4 text-xl font-semibold">Users list</h2>
+          <section className="glass-card" style={{ padding: 24 }}>
+            <h2 className="section-title">Users list</h2>
 
-            <div className="space-y-3">
+            <div className="card-list">
               {users.map((user) => (
-                <div
-                  key={user.id}
-                  className="rounded-xl border border-zinc-800 bg-zinc-950 p-4"
-                >
+                <div key={user.id} className="item-card">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="font-semibold">{user.name}</p>
-                      <p className="text-sm text-zinc-400">{user.email}</p>
-                      <p className="mt-1 text-sm text-zinc-300">{user.role}</p>
+                      <div className="item-title">{user.name}</div>
+                      <div className="item-meta">{user.email}</div>
+                      <div className="item-meta" style={{ marginTop: 6 }}>
+                        Role: {user.role}
+                      </div>
+
+                      <div className="item-meta" style={{ marginTop: 8 }}>
+                        Departments:{" "}
+                        {user.userDepartments.length > 0
+                          ? user.userDepartments
+                              .map((item) => item.department.name)
+                              .join(", ")
+                          : "None"}
+                      </div>
                     </div>
 
-                    <form action={deleteUser}>
-                      <input type="hidden" name="userId" value={user.id} />
-                      <button
-                        type="submit"
-                        className="rounded-lg border border-red-500 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10"
+                    <div className="flex flex-col gap-2">
+                      <Link
+                        href={`/admin/users/${user.id}/edit`}
+                        className="btn-secondary"
                       >
-                        Delete
-                      </button>
-                    </form>
+                        Edit
+                      </Link>
+
+                      <form action={deleteUser}>
+                        <input type="hidden" name="userId" value={user.id} />
+
+                        <ConfirmSubmitButton
+                          message="Ești sigur că vrei să ștergi acest user?"
+                          className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm font-medium text-red-400 transition hover:bg-red-500/20"
+                        >
+                          Delete
+                        </ConfirmSubmitButton>
+                      </form>
+                    </div>
                   </div>
                 </div>
               ))}
 
-              {users.length === 0 && (
-                <p className="text-zinc-400">Nu există useri.</p>
-              )}
+              {users.length === 0 ? (
+                <div className="item-card">
+                  <div className="item-meta">Nu există useri.</div>
+                </div>
+              ) : null}
             </div>
           </section>
         </div>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }

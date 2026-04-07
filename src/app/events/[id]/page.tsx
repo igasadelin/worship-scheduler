@@ -26,15 +26,28 @@ export default async function UserEventPage({
         },
         include: {
           user: true,
+          department: true,
         },
         orderBy: {
-          ministryRole: "asc",
+          createdAt: "asc",
         },
       },
     },
   });
 
-  if (!event) return notFound();
+  if (!event) {
+    notFound();
+  }
+
+  const currentEvent = event;
+
+  function getRequestLabel(request: (typeof currentEvent.requests)[number]) {
+    if (request.department?.name) {
+      return request.department.name;
+    }
+
+    return request.ministryRole || "Unknown";
+  }
 
   return (
     <>
@@ -46,31 +59,32 @@ export default async function UserEventPage({
             className="hero-title"
             style={{ fontSize: "clamp(2rem, 4vw, 2.8rem)" }}
           >
-            {event.title}
+            {currentEvent.title}
           </h1>
 
           <p className="hero-subtitle" style={{ marginTop: 12 }}>
-            {new Date(event.date).toLocaleString("ro-RO")} • {event.serviceType}
+            {new Date(currentEvent.date).toLocaleString("ro-RO")} •{" "}
+            {currentEvent.serviceType}
           </p>
 
-          {event.notes ? (
-            <p className="mt-4 text-zinc-300">{event.notes}</p>
+          {currentEvent.notes ? (
+            <p className="mt-4 text-zinc-300">{currentEvent.notes}</p>
           ) : null}
 
           <div style={{ marginTop: 28 }}>
             <h2 className="section-title">Confirmed lineup</h2>
 
             <div className="card-list">
-              {event.requests.map((request) => (
+              {currentEvent.requests.map((request) => (
                 <div key={request.id} className="item-card">
                   <div className="item-title">
-                    {request.ministryRole}: {request.user.name}
+                    {getRequestLabel(request)}: {request.user.name}
                   </div>
                   <div className="item-meta">{request.user.email}</div>
                 </div>
               ))}
 
-              {event.requests.length === 0 ? (
+              {currentEvent.requests.length === 0 ? (
                 <div className="item-card">
                   <div className="item-meta">
                     Nu există membri confirmați încă.
